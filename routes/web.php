@@ -8,8 +8,14 @@ Route::get('/', function () {
     return view('welcome');
 });
 
+use App\Models\User;
+
 Route::get('/dashboard', function () {
-    return view('dashboard');
+    // Mengambil semua user terdaftar di database, KECUALI user yang sedang login saat ini
+    $users = User::where('id', '!=', auth()->id())->get();
+    
+    // Mengirimkan data user tersebut ke halaman dashboard.blade.php
+    return view('dashboard', compact('users'));
 })->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::middleware('auth')->group(function () {
