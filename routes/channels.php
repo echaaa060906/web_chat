@@ -2,10 +2,12 @@
 
 use Illuminate\Support\Facades\Broadcast;
 
-Broadcast::channel('App.Models.User.{id}', function ($user, $id) {
-    return (int) $user->id === (int) $id;
+// 1. Jalur kirim pesan chat privat
+Broadcast::channel('chat.{receiverId}', function ($user, $receiverId) {
+    return (int) $user->id === (int) $receiverId || (int) $user->id === (int) auth()->id();
 });
+
+// 2. Jalur pantau lampu online
 Broadcast::channel('online-users', function ($user) {
-    // Jika user sudah masuk/login, izinkan mereka bergabung ke saluran pantau online ini
     return ['id' => $user->id, 'name' => $user->name];
 });

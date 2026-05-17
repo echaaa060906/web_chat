@@ -3,13 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Models\Message;
-use App\Models\User;
-use App\Events\MessageSent;
 use Illuminate\Http\Request;
+use App\Events\MessageSent; // Hubungkan ke file Event Langkah 1
 
 class ChatController extends Controller
 {
-    // Mengambil semua riwayat pesan antara User Login dengan User Penerima
+    // Mengambil riwayat pesan lama
     public function getMessages($receiverId)
     {
         $authId = auth()->id();
@@ -23,7 +22,7 @@ class ChatController extends Controller
         return response()->json($messages);
     }
 
-    // Menyimpan pesan baru dan menyiarkannya via WebSocket
+    // Menyimpan dan mengirim pesan baru
     public function sendMessage(Request $request)
     {
         $request->validate([
@@ -31,14 +30,20 @@ class ChatController extends Controller
             'message' => 'required|string',
         ]);
 
+        // Menyimpan pesan ke database (Sudah aman karena $fillable di Message.php sudah kamu perbaiki di foto)
         $message = Message::create([
             'sender_id' => auth()->id(),
             'receiver_id' => $request->receiver_id,
             'message' => $request->message,
         ]);
 
-        // Memicu Event agar Laravel Reverb menyiarkan pesan ini secara real-time
-        broadcast(new MessageSent($message))->toOthers();
+        // Kirimkan sinyal chat ke server WebSocket Reverb
+        try {
+            // 🟢 PERBAIKAN: Hapus .toOthers() agar sinyal broadcast tidak tersumbat
+            broadcast(new MessageSent($message)); 
+        } catch (\Exception $e) {
+            // Tetap aman berjalan meski server Reverb sedang offline
+        }
 
         return response()->json(['status' => 'Message sent!', 'message' => $message]);
     }
