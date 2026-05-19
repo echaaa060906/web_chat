@@ -46,4 +46,9 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+    // Relasi Tambahan: 1 User bisa bergabung ke banyak Grup
+    public function groups()
+    {
+        return $this->belongsToMany(Group::class);
+    }
 }

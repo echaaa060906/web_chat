@@ -9,6 +9,19 @@ class Message extends Model
 {
     use HasFactory;
 
-    // 🟢 KUNCI PERBAIKAN: Laravel wajib tahu 3 kolom ini boleh diisi otomatis
-    protected $fillable = ['sender_id', 'receiver_id', 'message'];
+    // Kolom-kolom yang diizinkan untuk diisi (Mass Assignment)
+    protected $fillable = [
+        'sender_id',
+        'receiver_id',
+        'group_id',
+        'message', // Kolom penampung teks pesan kamu wajib didaftarkan di sini!
+    ];
+
+    /**
+     * Hubungan relasi ke model User (Pengirim Pesan)
+     */
+    public function sender()
+    {
+        return $this->belongsTo(User::class, 'sender_id');
+    }
 }

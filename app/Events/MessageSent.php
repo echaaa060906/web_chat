@@ -26,7 +26,14 @@ class MessageSent implements ShouldBroadcast
      */
     public function broadcastOn(): array
     {
-        // Mengirimkan sinyal ke channel privat milik si penerima chat
+        // 🟢 JIKA CHAT GRUP: Kirim sinyal ke channel privat milik grup tersebut
+        if ($this->message->group_id) {
+            return [
+                new PrivateChannel('group.' . $this->message->group_id),
+            ];
+        }
+
+        // 👤 JIKA CHAT PERSONAL: Mengirimkan sinyal ke channel privat milik si penerima chat (Fitur Lama)
         return [
             new PrivateChannel('chat.' . $this->message->receiver_id),
         ];
